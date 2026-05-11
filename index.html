@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>正畸临床工具</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", Arial, sans-serif;
+      margin: 0;
+      background: #f5f7fa;
+      color: #222;
+    }
+    header {
+      background: #1f4e79;
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+    main {
+      max-width: 960px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h1, h2 {
+      margin-top: 0;
+    }
+    button {
+      background: #1f4e79;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #163a59;
+    }
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    pre {
+      white-space: pre-wrap;
+      background: #f0f3f6;
+      padding: 14px;
+      border-radius: 8px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>正畸临床工具</h1>
+    <p>用于正畸病例整理、患者沟通和报告生成</p >
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>一、患者基础信息</h2>
+      <input id="name" placeholder="患者姓名，例如：张某某" />
+      <input id="age" placeholder="年龄，例如：8岁" />
+      <select id="stage">
+        <option>儿童早期矫治</option>
+        <option>青少年固定矫治</option>
+        <option>成人正畸</option>
+        <option>正畸-正颌联合评估</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h2>二、主诉与临床问题</h2>
+      <textarea id="chief" rows="4" placeholder="例如：家长主诉孩子前牙深覆合，咬合较深，影响美观及发育。"></textarea>
+      <textarea id="problem" rows="5" placeholder="例如：前牙深覆合，上切牙唇倾，下切牙舌倾，疑似上颌发育不足。"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>三、医生初步判断</h2>
+      <textarea id="diagnosis" rows="5" placeholder="例如：初步考虑安氏II类倾向，前牙深覆合，需结合头颅侧位片、模型分析进一步判断。"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>四、治疗沟通方案</h2>
+      <textarea id="plan" rows="6" placeholder="例如：第一阶段使用平导打开咬合；第二阶段使用儿童隐形矫治器排齐牙列；第三阶段根据上颌骨发育情况考虑前方牵引。"></textarea>
+      <button onclick="generateReport()">生成患者沟通报告</button>
+    </div>
+
+    <div class="card">
+      <h2>五、生成结果</h2>
+      <pre id="output">请填写上方内容后点击生成。</pre>
+    </div>
+  </main>
+
+  <script>
+    function generateReport() {
+      const name = document.getElementById("name").value || "患者";
+      const age = document.getElementById("age").value || "未填写";
+      const stage = document.getElementById("stage").value;
+      const chief = document.getElementById("chief").value || "未填写";
+      const problem = document.getElementById("problem").value || "未填写";
+      const diagnosis = document.getElementById("diagnosis").value || "未填写";
+      const plan = document.getElementById("plan").value || "未填写";
+
+      const report = 
+`正畸患者初步沟通报告
+
+一、患者信息
+姓名：${name}
+年龄：${age}
+矫治阶段：${stage}
+
+二、主诉
+${chief}
+
+三、目前发现的主要问题
+${problem}
+
+四、医生初步判断
+${diagnosis}
+
+五、初步治疗沟通方案
+${plan}
+
+六、说明
+以上内容为初步沟通材料，最终诊断和治疗方案需结合口内检查、面像照、口扫模型、全
+
+
+
+
+
+
+
+
