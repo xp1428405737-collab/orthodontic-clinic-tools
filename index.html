@@ -3,145 +3,175 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>正畸临床工具</title>
+  <title>正畸临床工具 · 1.0</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", Arial, sans-serif;
-      margin: 0;
-      background: #f5f7fa;
-      color: #222;
-    }
-    header {
-      background: #1f4e79;
-      color: white;
-      padding: 24px;
-      text-align: center;
-    }
-    main {
-      max-width: 960px;
-      margin: 24px auto;
-      padding: 0 16px;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    h1, h2 {
-      margin-top: 0;
-    }
-    button {
-      background: #1f4e79;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #163a59;
-    }
-    textarea, input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
-    pre {
-      white-space: pre-wrap;
-      background: #f0f3f6;
-      padding: 14px;
-      border-radius: 8px;
-      line-height: 1.6;
-    }
+    :root{--p:#1f4e79;--pd:#163a59;--b:#f5f7fb;--c:#fff;--t:#1f2933;--m:#667085;--bd:#d8dee8;--s:0 8px 22px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}body{margin:0;background:var(--b);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei","PingFang SC",Arial,sans-serif;line-height:1.65}
+    header{background:linear-gradient(135deg,var(--p),#2f6fa3);color:white;text-align:center;padding:28px 16px}header h1{margin:0 0 8px;font-size:28px}header p{margin:0;opacity:.92}.tag{display:inline-block;margin-top:12px;background:rgba(255,255,255,.18);border-radius:999px;padding:4px 12px;font-size:13px}
+    main{max-width:1120px;margin:22px auto 48px;padding:0 16px}.bar{position:sticky;top:0;z-index:9;background:rgba(245,247,251,.94);backdrop-filter:blur(8px);padding:12px 0;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{grid-column:span 12;background:var(--c);border:1px solid var(--bd);border-radius:16px;padding:18px;box-shadow:var(--s)}.half{grid-column:span 6}.third{grid-column:span 4}
+    h2{margin:0 0 14px;color:var(--pd);font-size:20px}label{display:block;font-weight:700;font-size:14px;margin:8px 0 6px}.note{font-size:13px;color:var(--m);margin-top:-4px}.row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.col3{grid-column:span 3}.col4{grid-column:span 4}.col6{grid-column:span 6}.col12{grid-column:span 12}
+    input,select,textarea{width:100%;border:1px solid var(--bd);border-radius:10px;padding:10px 11px;font-size:15px;font-family:inherit;background:white;color:var(--t)}textarea{min-height:86px;resize:vertical}input:focus,select:focus,textarea:focus{outline:none;border-color:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.12)}
+    button{border:none;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}.primary{background:var(--p);color:white}.primary:hover{background:var(--pd)}.secondary{background:#e8eef6;color:var(--pd)}.danger{background:#fff1f0;color:#b42318}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid var(--bd);padding:8px;text-align:left;vertical-align:middle}th{background:#eef4fb;color:var(--pd)}td input{padding:8px;font-size:14px}
+    #output{white-space:pre-wrap;min-height:260px;border:1px solid var(--bd);border-radius:14px;background:white;padding:18px;line-height:1.85}.status{min-height:24px;color:#027a48;font-weight:700;font-size:14px}footer{text-align:center;color:var(--m);font-size:13px;padding:0 16px 28px}
+    @media(max-width:860px){.half,.third,.col3,.col4,.col6{grid-column:span 12}.bar{position:static}button{flex:1}header h1{font-size:24px}}
+    @media print{header,.bar,.inputArea,footer{display:none!important}body{background:white}main{max-width:none;margin:0;padding:0}.card{box-shadow:none;border:none;padding:0}#output{border:none;padding:0;font-size:14px}}
   </style>
 </head>
 <body>
-  <header>
-    <h1>正畸临床工具</h1>
-    <p>用于正畸病例整理、患者沟通和报告生成</p >
-  </header>
+<header>
+  <h1>正畸临床工具</h1>
+  <p>结构化病例整理 · 患者沟通报告 · 门诊沟通辅助</p>
+  <span class="tag">1.0 临床实用版</span>
+</header>
+<main>
+  <div class="bar">
+    <button class="secondary" onclick="fillTemplate()">套用模板</button>
+    <button class="primary" onclick="generateReport()">生成报告</button>
+    <button class="secondary" onclick="copyReport()">复制</button>
+    <button class="secondary" onclick="window.print()">打印</button>
+    <button class="danger" onclick="clearForm()">清空</button>
+  </div>
 
-  <main>
+  <section class="grid inputArea">
     <div class="card">
       <h2>一、患者基础信息</h2>
-      <input id="name" placeholder="患者姓名，例如：张某某" />
-      <input id="age" placeholder="年龄，例如：8岁" />
-      <select id="stage">
-        <option>儿童早期矫治</option>
-        <option>青少年固定矫治</option>
-        <option>成人正畸</option>
-        <option>正畸-正颌联合评估</option>
-      </select>
+      <div class="row">
+        <div class="col3"><label>患者姓名</label><input id="name" placeholder="张某某"></div>
+        <div class="col3"><label>年龄</label><input id="age" placeholder="8岁"></div>
+        <div class="col3"><label>性别</label><select id="gender"><option>未填写</option><option>男</option><option>女</option></select></div>
+        <div class="col3"><label>日期</label><input id="date" type="date"></div>
+        <div class="col4"><label>矫治类型</label><select id="stage"><option>儿童早期矫治</option><option>青少年固定矫治</option><option>成人正畸</option><option>正畸-正颌联合评估</option></select></div>
+        <div class="col4"><label>接诊医生</label><input id="doctor" placeholder="周医生"></div>
+        <div class="col4"><label>沟通对象</label><input id="receiver" placeholder="患者本人 / 家长 / 家属"></div>
+      </div>
+    </div>
+
+    <div class="card half">
+      <h2>二、主诉与需求</h2>
+      <label>主诉</label><textarea id="chief" placeholder="例如：牙列不齐、咬合较深、前牙反颌、面型不协调等。"></textarea>
+      <label>患者或家长期望</label><textarea id="expectation" placeholder="例如：希望改善牙齿排列、咬合功能和美观，了解周期及复诊安排。"></textarea>
+    </div>
+
+    <div class="card half">
+      <h2>三、临床检查摘要</h2>
+      <div class="row">
+        <div class="col6"><label>面型</label><select id="face"><option>未填写</option><option>均面型</option><option>长面型倾向</option><option>短面型倾向</option><option>面部不对称倾向</option></select></div>
+        <div class="col6"><label>侧貌</label><select id="profile"><option>未填写</option><option>直面型</option><option>凸面型</option><option>凹面型</option><option>颏部后缩倾向</option></select></div>
+        <div class="col6"><label>磨牙关系</label><input id="molar" placeholder="安氏I类 / II类 / III类倾向"></div>
+        <div class="col6"><label>尖牙关系</label><input id="canine" placeholder="I类 / II类 / III类倾向"></div>
+        <div class="col6"><label>覆盖</label><input id="overjet" placeholder="正常 / 增大 / 反覆盖"></div>
+        <div class="col6"><label>覆合</label><input id="overbite" placeholder="正常 / 深覆合 / 开合"></div>
+        <div class="col6"><label>上颌拥挤或间隙</label><input id="upperSpace" placeholder="拥挤约3mm / 间隙约2mm"></div>
+        <div class="col6"><label>下颌拥挤或间隙</label><input id="lowerSpace" placeholder="拥挤约4mm / 间隙约1mm"></div>
+      </div>
     </div>
 
     <div class="card">
-      <h2>二、主诉与临床问题</h2>
-      <textarea id="chief" rows="4" placeholder="例如：家长主诉孩子前牙深覆合，咬合较深，影响美观及发育。"></textarea>
-      <textarea id="problem" rows="5" placeholder="例如：前牙深覆合，上切牙唇倾，下切牙舌倾，疑似上颌发育不足。"></textarea>
+      <h2>四、头影测量摘要</h2>
+      <p class="note">此处用于沟通摘要，可根据北医、华西或门诊常用分析法录入。正式结论以完整资料分析为准。</p>
+      <table>
+        <thead><tr><th>项目</th><th>参考值</th><th>患者值</th><th>判断</th></tr></thead>
+        <tbody>
+          <tr><td>SNA</td><td>约82°</td><td><input id="sna"></td><td><input id="snaJ"></td></tr>
+          <tr><td>SNB</td><td>约80°</td><td><input id="snb"></td><td><input id="snbJ"></td></tr>
+          <tr><td>ANB</td><td>约2°</td><td><input id="anb"></td><td><input id="anbJ"></td></tr>
+          <tr><td>下颌平面角</td><td>约25°-32°</td><td><input id="mp"></td><td><input id="mpJ"></td></tr>
+          <tr><td>U1-SN</td><td>约102°</td><td><input id="u1"></td><td><input id="u1J"></td></tr>
+          <tr><td>L1-MP</td><td>约90°</td><td><input id="l1"></td><td><input id="l1J"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card half">
+      <h2>五、医生初步印象</h2>
+      <label>主要问题列表</label><textarea id="summary" placeholder="例如：前牙深覆合；上下切牙倾斜异常；牙列轻中度拥挤；上下颌骨关系需进一步评估。"></textarea>
+      <label>沟通重点</label><textarea id="focus" placeholder="例如：需向患者说明分阶段目标、复诊频率、配合要求及保持的重要性。"></textarea>
+    </div>
+
+    <div class="card half">
+      <h2>六、方案沟通</h2>
+      <label>初步方案</label><textarea id="plan" placeholder="例如：第一阶段改善覆合覆盖；第二阶段排齐牙列并调整咬合；第三阶段根据资料复评后精细调整。"></textarea>
+      <label>复诊与保持建议</label><textarea id="retention" placeholder="例如：治疗中约4-6周复诊；结束后按医嘱佩戴保持器并定期复查。"></textarea>
     </div>
 
     <div class="card">
-      <h2>三、医生初步判断</h2>
-      <textarea id="diagnosis" rows="5" placeholder="例如：初步考虑安氏II类倾向，前牙深覆合，需结合头颅侧位片、模型分析进一步判断。"></textarea>
+      <h2>七、补充说明</h2>
+      <textarea id="extra" placeholder="例如：本报告用于初诊沟通，最终方案需结合影像、口扫、面像照及完整检查后确定。"></textarea>
     </div>
+  </section>
 
+  <section class="grid">
     <div class="card">
-      <h2>四、治疗沟通方案</h2>
-      <textarea id="plan" rows="6" placeholder="例如：第一阶段使用平导打开咬合；第二阶段使用儿童隐形矫治器排齐牙列；第三阶段根据上颌骨发育情况考虑前方牵引。"></textarea>
-      <button onclick="generateReport()">生成患者沟通报告</button>
+      <h2>八、生成结果</h2>
+      <div class="status" id="status"></div>
+      <div id="output">请填写上方内容后，点击“生成报告”。</div>
     </div>
-
-    <div class="card">
-      <h2>五、生成结果</h2>
-      <pre id="output">请填写上方内容后点击生成。</pre>
-    </div>
-  </main>
-
-  <script>
-    function generateReport() {
-      const name = document.getElementById("name").value || "患者";
-      const age = document.getElementById("age").value || "未填写";
-      const stage = document.getElementById("stage").value;
-      const chief = document.getElementById("chief").value || "未填写";
-      const problem = document.getElementById("problem").value || "未填写";
-      const diagnosis = document.getElementById("diagnosis").value || "未填写";
-      const plan = document.getElementById("plan").value || "未填写";
-
-      const report = 
-`正畸患者初步沟通报告
+  </section>
+</main>
+<footer>本工具用于门诊沟通和病例整理，不能替代正式病历、知情同意书和完整诊疗流程。</footer>
+<script>
+const templates={
+"儿童早期矫治":{chief:"家长主诉孩子牙齿或咬合发育异常，希望评估是否需要早期干预。",expectation:"希望明确目前问题、阶段目标、复诊频率和后续是否需要二期矫治。",summary:"需重点评估覆合覆盖、替牙顺序、牙列间隙、颌骨发育协调性及口腔不良习惯。",focus:"向家长解释早期矫治以阶段性目标为主，需持续观察生长发育和换牙变化。",plan:"建议完善面像照、口扫模型、全景片和头颅侧位片。根据资料选择平导、扩弓、功能矫治、前方牵引或儿童隐形矫治等方案。",retention:"阶段目标达成后需按医嘱保持，并定期复查替牙和颌骨发育。"},
+"青少年固定矫治":{chief:"患者主诉牙列不齐或咬合关系不佳，希望通过固定矫治改善排列和咬合。",expectation:"希望了解是否需要拔牙、治疗周期、托槽选择和复诊安排。",summary:"需综合评估拥挤度、牙弓宽度、磨牙尖牙关系、覆合覆盖、侧貌突度和支抗需求。",focus:"沟通拔牙与非拔牙边界、支抗控制、转矩控制、口腔清洁和按时复诊。",plan:"建议完善正畸资料后制定固定矫治方案，可根据拥挤度和侧貌选择排齐整平、扩弓、片切、推磨牙或拔牙矫治路径。",retention:"固定矫治结束后需佩戴保持器，前期严格保持，后期长期夜间保持。"},
+"成人正畸":{chief:"患者主诉牙列不齐、牙缝、前突或咬合不适，希望改善美观和功能。",expectation:"希望在稳定、可控的前提下兼顾美观、舒适度和治疗效率。",summary:"成人病例需重点记录牙周状态、缺牙修复情况、牙槽骨条件、关节症状和依从性。",focus:"沟通牙周维护、治疗边界、移动速度、复诊规律和长期保持。",plan:"建议先完善牙周、龋病、根尖及修复评估，再根据需求选择固定矫治或隐形矫治，可联合片切、支抗钉或修复方案。",retention:"成人正畸结束后建议长期保持，并定期复查牙周、咬合和保持器适合性。"},
+"正畸-正颌联合评估":{chief:"患者主诉面型或咬合不协调，希望评估单纯正畸与联合治疗的差异。",expectation:"希望了解问题主要来自牙齿排列还是颌骨关系，以及不同路径的预期效果。",summary:"需结合面像、头影、模型和必要的三维资料，评估骨性关系和牙齿代偿程度。",focus:"沟通单纯正畸掩饰治疗与联合治疗的目标差异、周期差异和资料评估必要性。",plan:"建议完善联合评估资料。根据严重程度选择单纯正畸方案，或术前正畸、外科评估、术后精调的联合路径。",retention:"治疗结束后仍需保持，并定期复查咬合、面型稳定性和口腔健康。"}
+};
+const ids=["name","age","gender","date","stage","doctor","receiver","chief","expectation","face","profile","molar","canine","overjet","overbite","upperSpace","lowerSpace","sna","snaJ","snb","snbJ","anb","anbJ","mp","mpJ","u1","u1J","l1","l1J","summary","focus","plan","retention","extra"];
+function v(id,d="未填写"){const e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():d}
+function status(t,bad=false){const s=document.getElementById("status");s.textContent=t;s.style.color=bad?"#b42318":"#027a48";setTimeout(()=>s.textContent="",2500)}
+function fillTemplate(){const t=templates[v("stage","儿童早期矫治")];if(!t)return;Object.keys(t).forEach(k=>{const e=document.getElementById(k);if(e&&!e.value.trim())e.value=t[k]});save();status("已套用模板，已有内容未覆盖。")}
+function ceph(){return [["SNA","约82°","sna","snaJ"],["SNB","约80°","snb","snbJ"],["ANB","约2°","anb","anbJ"],["下颌平面角","约25°-32°","mp","mpJ"],["U1-SN","约102°","u1","u1J"],["L1-MP","约90°","l1","l1J"]].map(r=>`${r[0]}：参考值${r[1]}；患者值：${v(r[2])}；判断：${v(r[3])}`).join("\n")}
+function generateReport(){const text=`正畸患者初步沟通报告
 
 一、患者信息
-姓名：${name}
-年龄：${age}
-矫治阶段：${stage}
+姓名：${v("name","患者")}
+年龄：${v("age")}
+性别：${v("gender")}
+日期：${v("date")}
+矫治类型：${v("stage")}
+接诊医生：${v("doctor")}
+沟通对象：${v("receiver","患者 / 家属")}
 
-二、主诉
-${chief}
+二、主诉与需求
+主诉：${v("chief")}
+患者或家长期望：${v("expectation")}
 
-三、目前发现的主要问题
-${problem}
+三、临床检查摘要
+面型：${v("face")}
+侧貌：${v("profile")}
+磨牙关系：${v("molar")}
+尖牙关系：${v("canine")}
+覆盖：${v("overjet")}
+覆合：${v("overbite")}
+上颌拥挤或间隙：${v("upperSpace")}
+下颌拥挤或间隙：${v("lowerSpace")}
 
-四、医生初步判断
-${diagnosis}
+四、头影测量摘要
+${ceph()}
 
-五、初步治疗沟通方案
-${plan}
+五、医生初步印象
+${v("summary")}
 
-六、说明
-以上内容为初步沟通材料，最终诊断和治疗方案需结合口内检查、面像照、口扫模型、全
+六、沟通重点
+${v("focus")}
 
+七、初步方案
+${v("plan")}
 
+八、复诊与保持建议
+${v("retention")}
 
+九、补充说明
+${v("extra","本报告用于初诊沟通，最终方案需结合影像、口扫、面像照及完整检查后确定。")}
 
-
-
-
-
+提示：本报告为门诊沟通材料，具体方案、周期、费用和注意事项以正式检查、分析和知情沟通为准。`;document.getElementById("output").textContent=text;save();status("报告已生成。")}
+async function copyReport(){if(document.getElementById("output").textContent.includes("请填写"))generateReport();try{await navigator.clipboard.writeText(document.getElementById("output").textContent);status("已复制。") }catch(e){status("复制失败，请手动长按复制。",true)}}
+function clearForm(){if(!confirm("确定清空所有内容吗？"))return;ids.forEach(id=>{const e=document.getElementById(id);if(e)e.tagName==="SELECT"?e.selectedIndex=0:e.value=""});document.getElementById("output").textContent="请填写上方内容后，点击“生成报告”。";localStorage.removeItem("orthoToolV1");status("已清空。")}
+function save(){const d={};ids.forEach(id=>{const e=document.getElementById(id);if(e)d[id]=e.value});localStorage.setItem("orthoToolV1",JSON.stringify(d))}
+function restore(){const raw=localStorage.getItem("orthoToolV1");if(raw){try{const d=JSON.parse(raw);Object.keys(d).forEach(id=>{const e=document.getElementById(id);if(e)e.value=d[id]})}catch(e){localStorage.removeItem("orthoToolV1")}}else{const e=document.getElementById("date");if(e)e.value=new Date().toISOString().slice(0,10)}}
+document.addEventListener("DOMContentLoaded",()=>{restore();ids.forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener("input",save);e.addEventListener("change",save)}})});
+</script>
+</body>
+</html>
