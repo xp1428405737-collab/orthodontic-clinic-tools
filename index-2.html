@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>正畸临床工具 3.1 按临床习惯定制版</title>
+  <style>
+    :root{
+      --p:#1f4e79;--pd:#153956;--bg:#f5f7fb;--card:#fff;--text:#1f2933;
+      --muted:#667085;--border:#d8dee8;--soft:#eef4fb;--ok:#027a48;--err:#b42318;
+      --shadow:0 8px 22px rgba(15,23,42,.08)
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei","PingFang SC",Arial,sans-serif;line-height:1.7}
+    header{background:linear-gradient(135deg,var(--p),#2f6fa3);color:#fff;text-align:center;padding:28px 14px}
+    header h1{margin:0 0 8px;font-size:28px;letter-spacing:.03em}
+    header p{margin:4px 0;opacity:.95}
+    .tag{display:inline-block;margin-top:10px;background:rgba(255,255,255,.18);border-radius:999px;padding:4px 12px;font-size:13px}
+    main{max-width:1180px;margin:18px auto 50px;padding:0 14px}
+    .bar{position:sticky;top:0;z-index:8;background:rgba(245,247,251,.96);backdrop-filter:blur(8px);padding:10px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    .left{margin-right:auto;display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin:14px 0;box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+    .c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c8{grid-column:span 8}.c12{grid-column:span 12}
+    h2{margin:0 0 12px;color:var(--pd);font-size:20px}
+    h3{margin:12px 0 8px;color:var(--pd);font-size:16px}
+    label{display:block;font-weight:700;margin:8px 0 5px;font-size:14px}
+    input,select,textarea{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:15px;font-family:inherit;background:#fff;color:var(--text)}
+    textarea{min-height:82px;resize:vertical}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.12)}
+    button{border:0;border-radius:10px;padding:10px 13px;font-weight:700;font-size:15px;font-family:inherit;margin:2px;cursor:pointer}
+    .p{background:var(--p);color:white}.p:hover{background:var(--pd)}
+    .s{background:#e8eef6;color:var(--pd)}
+    .d{background:#fff1f0;color:var(--err)}
+    .g{background:#ecfdf3;color:var(--ok)}
+    .note{color:var(--muted);font-size:13px;margin:2px 0 10px}
+    .ok{color:var(--ok);font-weight:700;min-height:24px}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{border:1px solid var(--border);padding:7px;text-align:left;vertical-align:top}
+    th{background:var(--soft);color:var(--pd)}
+    td input{padding:8px;font-size:14px}
+    #out{white-space:pre-wrap;min-height:330px;border:1px solid var(--border);border-radius:14px;padding:18px;background:white;line-height:1.85}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .tab{background:#e8eef6;color:var(--pd)}
+    .tab.active{background:var(--p);color:white}
+    .checkrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .checkrow label{font-weight:500;margin:0;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px}
+    .checkrow input{width:auto;margin-right:6px}
+    footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 28px}
+    @media(max-width:900px){
+      .c2,.c3,.c4,.c6,.c8{grid-column:span 12}
+      .bar{position:static}.left{width:100%}button{flex:1}
+      .checkrow{grid-template-columns:1fr}
+      header h1{font-size:24px}
+    }
+    @media print{
+      header,.bar,.form,footer,.tabs{display:none!important}
+      body{background:white}
+      main{max-width:none;margin:0;padding:0}
+      .card{box-shadow:none;border:0;padding:0;margin:0}
+      #out{border:0;padding:0;font-size:14px}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>正畸临床工具</h1>
+  <p>3.1 按临床习惯定制版：先结论 · 再依据 · 争议单列 · 不确定直接写明</p>
+  <span class="tag">头影格式固定：项目｜正常值｜估测值｜判断</span>
+</header>
+
+<main>
+  <div class="bar">
+    <div class="left">
+      <label><input id="saveOn" type="checkbox" onchange="saveSetting()"> 允许本机保存草稿</label>
+      <label><input id="maskOn" type="checkbox" checked> 生成报告自动脱敏姓名</label>
+      <span>公开网页模式：建议脱敏使用，不填电话/身份证/影像链接</span>
+    </div>
+    <button class="s" onclick="fillTemplate()">套用临床模板</button>
+    <button class="g" onclick="deidentify()">一键脱敏</button>
+    <button class="p" onclick="generateReport()">生成报告</button>
+    <button class="s" onclick="copyReport()">复制</button>
+    <button class="s" onclick="downloadTxt()">下载TXT</button>
+    <button class="s" onclick="window.print()">打印/PDF</button>
+    <button class="d" onclick="clearAll()">清空</button>
+  </div>
+
+  <section class="form">
+    <div class="card">
+      <h2>一、患者基础信息</h2>
+      <p class="note">建议姓名写“张某某”这类脱敏形式。默认不保存草稿，只有勾选“允许本机保存草稿”才保存到当前浏览器。</p>
+      <div class="grid">
+        <div class="c3"><label>患者姓名</label><input id="name" placeholder="张某某"></div>
+        <div class="c2"><label>年龄</label><input id="age" placeholder="8岁"></div>
+        <div class="c2"><label>性别</label><select id="sex"><option>未填写</option><option>男</option><option>女</option></select></div>
+        <div class="c3"><label>就诊日期</label><input id="date" type="date"></div>
+        <div class="c2"><label>接诊医生</label><input id="doctor" placeholder="周医生"></div>
+        <div class="c4"><label>病例类型</label><select id="stage">
+          <option>儿童早期矫治</option><option>青少年固定矫治</option><option>成人正畸</option><option>隐形矫治评估</option><option>正畸-正颌联合评估</option><option>保持/复发评估</option>
+        </select></div>
+        <div class="c4"><label>沟通对象</label><input id="receiver" placeholder="患者本人 / 家长 / 患者及家属"></div>
+        <div class="c4"><label>输出报告类型</label><select id="reportType">
+          <option>患者沟通版</option><option>医生病例摘要版</option><option>专业系统分析版</option><option>知情沟通要点版</option>
+        </select></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>二、主诉、期望、病史与习惯</h2>
+      <div class="grid">
+        <div class="c6"><label>主诉</label><textarea id="chief" placeholder="例如：牙列不齐、前牙深覆合、反颌、嘴突、面型不协调等。"></textarea></div>
+        <div class="c6"><label>患者/家长期望</label><textarea id="want" placeholder="例如：改善牙齿排列、咬合功能和美观；希望了解周期、费用、复诊频率。"></textarea></div>
+        <div class="c6"><label>既往史/口腔治疗史</label><textarea id="history" placeholder="乳牙早失、龋病治疗、牙周治疗、外伤史、既往矫治史等。"></textarea></div>
+        <div class="c6"><label>口腔不良习惯/功能问题</label><textarea id="habits" placeholder="口呼吸、吮指、吐舌、咬唇、偏侧咀嚼、夜磨牙、关节弹响等。"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>三、面像与软组织</h2>
+      <div class="grid">
+        <div class="c3"><label>面型</label><select id="faceType"><option>未填写</option><option>均面型</option><option>长面型倾向</option><option>短面型倾向</option><option>面部不对称倾向</option></select></div>
+        <div class="c3"><label>侧貌</label><select id="profile"><option>未填写</option><option>直面型</option><option>凸面型</option><option>凹面型</option><option>颏部后缩倾向</option></select></div>
+        <div class="c3"><label>唇部情况</label><input id="lips" placeholder="唇突/闭唇紧张/基本协调"></div>
+        <div class="c3"><label>颏部/下颌</label><input id="chin" placeholder="颏部后缩/偏斜/基本协调"></div>
+        <div class="c6"><label>面部对称性</label><textarea id="symmetry" placeholder="例如：面部基本对称；下颌轻度偏斜；微笑时牙弓偏斜等。"></textarea></div>
+        <div class="c6"><label>软组织沟通重点</label><textarea id="softTissueFocus" placeholder="侧貌改善边界、唇突改善预期、颏部发育/正颌边界等。"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>四、口内检查与模型/口扫分析</h2>
+      <div class="grid">
+        <div class="c3"><label>右侧磨牙关系</label><input id="molarR" placeholder="I类/II类/III类"></div>
+        <div class="c3"><label>左侧磨牙关系</label><input id="molarL" placeholder="I类/II类/III类"></div>
+        <div class="c3"><label>右侧尖牙关系</label><input id="canineR" placeholder="I类/II类/III类"></div>
+        <div class="c3"><label>左侧尖牙关系</label><input id="canineL" placeholder="I类/II类/III类"></div>
+        <div class="c3"><label>覆盖</label><input id="overjet" placeholder="正常/增大/反覆盖，mm"></div>
+        <div class="c3"><label>覆合</label><input id="overbite" placeholder="正常/深覆合/开合"></div>
+        <div class="c3"><label>中线</label><input id="midline" placeholder="上/下中线偏斜"></div>
+        <div class="c3"><label>横向问题</label><input id="crossbite" placeholder="后牙反颌/锁颌/狭窄"></div>
+        <div class="c3"><label>上颌6-6拥挤度</label><input id="upperCrowd" placeholder="例如：拥挤3mm"></div>
+        <div class="c3"><label>下颌6-6拥挤度</label><input id="lowerCrowd" placeholder="例如：拥挤4mm"></div>
+        <div class="c3"><label>上颌散在间隙</label><input id="upperSpace" placeholder="例如：间隙2mm"></div>
+        <div class="c3"><label>下颌散在间隙</label><input id="lowerSpace" placeholder="例如：间隙1mm"></div>
+        <div class="c6"><label>牙体牙周/影像备注</label><textarea id="dentalNote" placeholder="龋病、牙周、缺牙、埋伏牙、阻生牙、修复体、牙根吸收风险等。"></textarea></div>
+        <div class="c6"><label>模型/口扫备注</label><textarea id="modelNote" placeholder="Bolton、Spee曲线、牙弓宽度、口扫模型观察、测量误差等。"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>五、头影测量/估测摘要</h2>
+      <p class="note">完全按你之前要求的格式输出：项目｜正常值｜估测值｜判断。正常值可按北医、华西或门诊常用分析法自行调整。</p>
+      <table>
+        <thead><tr><th>项目</th><th>正常值</th><th>估测值</th><th>判断</th></tr></thead>
+        <tbody>
+          <tr><td>SNA</td><td><input id="n_sna" value="约82°"></td><td><input id="sna"></td><td><input id="snaJ" placeholder="上颌位置/发育判断"></td></tr>
+          <tr><td>SNB</td><td><input id="n_snb" value="约80°"></td><td><input id="snb"></td><td><input id="snbJ" placeholder="下颌位置判断"></td></tr>
+          <tr><td>ANB</td><td><input id="n_anb" value="约2°"></td><td><input id="anb"></td><td><input id="anbJ" placeholder="骨性I/II/III类倾向"></td></tr>
+          <tr><td>Wits</td><td><input id="n_wits" value="约0mm附近"></td><td><input id="wits"></td><td><input id="witsJ"></td></tr>
+          <tr><td>FH-MP/下颌平面角</td><td><input id="n_mp" value="约25°-32°"></td><td><input id="mp"></td><td><input id="mpJ" placeholder="垂直向发育型"></td></tr>
+          <tr><td>U1-SN</td><td><input id="n_u1" value="约102°"></td><td><input id="u1"></td><td><input id="u1J" placeholder="上切牙唇/舌倾"></td></tr>
+          <tr><td>L1-MP</td><td><input id="n_l1" value="约90°"></td><td><input id="l1"></td><td><input id="l1J" placeholder="下切牙唇/舌倾"></td></tr>
+          <tr><td>U1-L1</td><td><input id="n_u1l1" value="约125°-130°"></td><td><input id="u1l1"></td><td><input id="u1l1J"></td></tr>
+          <tr><td>软组织/面角</td><td><input id="n_soft" value="按所用分析法"></td><td><input id="soft"></td><td><input id="softJ"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>六、先给结论：临床判断与问题列表</h2>
+      <div class="grid">
+        <div class="c12"><label>一句话结论</label><textarea id="oneConclusion" placeholder="例如：该病例主要矛盾为前牙深覆合伴上下切牙代偿性倾斜，需结合头影和模型评估骨性关系后分阶段处理。"></textarea></div>
+        <div class="c6"><label>骨性问题</label><textarea id="skeletalProblem" placeholder="上颌发育不足倾向、下颌后缩/前突倾向、垂直向偏高等。"></textarea></div>
+        <div class="c6"><label>牙性问题</label><textarea id="dentalProblem" placeholder="牙列拥挤、前牙唇倾/舌倾、深覆合、反覆盖、中线偏斜等。"></textarea></div>
+        <div class="c6"><label>软组织/美学问题</label><textarea id="estheticProblem" placeholder="侧貌凸、闭唇紧张、唇突、颏部后缩、微笑美学问题。"></textarea></div>
+        <div class="c6"><label>功能/健康问题</label><textarea id="functionalProblem" placeholder="口呼吸、偏侧咀嚼、关节弹响、牙周清洁难度、龋病风险。"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>七、再给依据：诊断依据与争议点</h2>
+      <div class="grid">
+        <div class="c6"><label>临床依据</label><textarea id="clinicalEvidence" placeholder="例如：面像、口内照、磨牙关系、覆合覆盖、中线、模型拥挤度等。"></textarea></div>
+        <div class="c6"><label>头影/模型依据</label><textarea id="dataEvidence" placeholder="例如：SNA/SNB/ANB、下颌平面角、切牙倾斜度、6-6拥挤度等。"></textarea></div>
+        <div class="c6"><label>存在争议/不同观点</label><textarea id="controversy" placeholder="例如：是否需拔牙、是否需早期干预、单纯正畸与正颌边界、隐形与固定选择等。"></textarea></div>
+        <div class="c6"><label>证据不足/不确定点</label><textarea id="uncertain" placeholder="例如：当前仅初诊资料，尚缺CBCT/口扫/头影精确测量，暂不能确定某项结论。"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>八、治疗方案与阶段目标</h2>
+      <div class="grid">
+        <div class="c4"><label>推荐路径</label><select id="treatPath">
+          <option>阶段性早期矫治</option><option>固定矫治</option><option>隐形矫治</option><option>固定+支抗钉</option><option>拔牙矫治</option><option>正畸-正颌联合</option><option>保持/复发管理</option>
+        </select></div>
+        <div class="c4"><label>预计周期</label><input id="duration" placeholder="例如：一期6-12个月；综合18-30个月"></div>
+        <div class="c4"><label>复诊频率</label><input id="interval" placeholder="例如：4-6周/次"></div>
+        <div class="c6"><label>一期目标</label><textarea id="phase1" placeholder="解除反颌/打开咬合/改善牙弓宽度/控制不良习惯。"></textarea></div>
+        <div class="c6"><label>二期/综合目标</label><textarea id="phase2" placeholder="排齐整平、调整磨牙尖牙关系、控制前牙转矩、建立稳定咬合。"></textarea></div>
+        <div class="c6"><label>医生版具体方案</label><textarea id="plan" placeholder="写给医生自己看的完整治疗设计。"></textarea></div>
+        <div class="c6"><label>患者版解释</label><textarea id="patientPlan" placeholder="写给患者/家长能听懂的解释。"></textarea></div>
+        <div class="c6"><label>配合要求</label><textarea id="compliance" placeholder="口腔清洁、按时复诊、橡皮筋/矫治器佩戴、饮食注意等。"></textarea></div>
+        <div class="c6"><label>保持方案</label><textarea id="retention" placeholder="哈雷保持器/透明保持器/舌侧丝；前6-12个月严格保持，后期长期夜间保持。"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>九、风险告知与门诊备注</h2>
+      <h3>常见风险勾选</h3>
+      <div class="checkrow" id="riskChecks">
+        <label><input type="checkbox" value="矫治过程中可能出现牙齿酸胀、咬合不适或短期咀嚼不适。">短期不适</label>
+        <label><input type="checkbox" value="口腔清洁不足可能增加牙龈炎、脱矿白斑和龋病风险。">清洁风险</label>
+        <label><input type="checkbox" value="个体差异下可能存在牙根吸收、牙龈退缩或黑三角风险。">牙根/牙周风险</label>
+        <label><input type="checkbox" value="若依从性不足，可能影响疗效、延长疗程或增加复发风险。">依从性风险</label>
+        <label><input type="checkbox" value="治疗结束后若保持不足，牙齿和咬合关系可能出现复发。">保持复发</label>
+        <label><input type="checkbox" value="复杂骨性或成人病例可能存在单纯正畸改善边界，必要时需联合多学科评估。">治疗边界</label>
+      </div>
+      <div class="grid">
+        <div class="c6"><label>额外风险/特别说明</label><textarea id="extraRisk" placeholder="薄龈型、支抗钉、拔牙、埋伏牙、关节症状、正颌边界等。"></textarea></div>
+        <div class="c6"><label>费用/成交/随访备注</label><textarea id="followNote" placeholder="门诊内部备注。患者版报告可不输出或简化。"></textarea></div>
+        <div class="c12"><label>补充说明</label><textarea id="extra" placeholder="用于报告结尾的补充说明。"></textarea></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="card">
+    <h2>十、生成结果</h2>
+    <div class="tabs">
+      <button class="tab active" id="tabPatient" onclick="setReportType('患者沟通版')">患者沟通版</button>
+      <button class="tab" id="tabDoctor" onclick="setReportType('医生病例摘要版')">医生病例摘要版</button>
+      <button class="tab" id="tabSystem" onclick="setReportType('专业系统分析版')">专业系统分析版</button>
+      <button class="tab" id="tabConsent" onclick="setReportType('知情沟通要点版')">知情沟通要点版</button>
+    </div>
+    <div id="msg" class="ok"></div>
+    <div id="out">请填写后点击“生成报告”。</div>
+  </div>
+</main>
+
+<footer>
+  本工具用于正畸门诊沟通和病例整理。公开部署时请脱敏使用，不要填写身份证、手机号、完整住址、影像链接等敏感信息。
+</footer>
+
+<script>
+const ids=[
+'name','age','sex','date','doctor','stage','receiver','reportType','chief','want','history','habits',
+'faceType','profile','lips','chin','symmetry','softTissueFocus',
+'molarR','molarL','canineR','canineL','overjet','overbite','midline','crossbite','upperCrowd','lowerCrowd','upperSpace','lowerSpace','dentalNote','modelNote',
+'n_sna','sna','snaJ','n_snb','snb','snbJ','n_anb','anb','anbJ','n_wits','wits','witsJ','n_mp','mp','mpJ','n_u1','u1','u1J','n_l1','l1','l1J','n_u1l1','u1l1','u1l1J','n_soft','soft','softJ',
+'oneConclusion','skeletalProblem','dentalProblem','estheticProblem','functionalProblem','clinicalEvidence','dataEvidence','controversy','uncertain',
+'treatPath','duration','interval','phase1','phase2','plan','patientPlan','compliance','retention','extraRisk','followNote','extra'
+];
+
+function E(id){return document.getElementById(id)}
+function V(id,d='未填写'){const el=E(id);return el&&String(el.value).trim()?String(el.value).trim():d}
+function say(t){E('msg').textContent=t;setTimeout(()=>E('msg').textContent='',2400)}
+function maskName(n){if(!n||n==='未填写')return '患者';if(n.includes('某'))return n;return n.length<=1?'患者':n[0]+'某某'}
+function reportName(){return E('maskOn').checked?maskName(V('name','患者')):V('name','患者')}
+
+function getRisks(){
+  const items=[...document.querySelectorAll('#riskChecks input:checked')].map(x=>x.value);
+  const extra=V('extraRisk','');
+  if(extra)items.push(extra);
+  return items.length?items.map((x,i)=>`${i+1}. ${x}`).join('\n'):'未填写';
+}
+
+function cephText(){
+  const rows=[
+    ['SNA','n_sna','sna','snaJ'],['SNB','n_snb','snb','snbJ'],['ANB','n_anb','anb','anbJ'],['Wits','n_wits','wits','witsJ'],
+    ['FH-MP/下颌平面角','n_mp','mp','mpJ'],['U1-SN','n_u1','u1','u1J'],['L1-MP','n_l1','l1','l1J'],['U1-L1','n_u1l1','u1l1','u1l1J'],['软组织/面角','n_soft','soft','softJ']
+  ];
+  return rows.map(r=>`${r[0]}｜正常值：${V(r[1])}｜估测值：${V(r[2])}｜判断：${V(r[3])}`).join('\n');
+}
+
+function setReportType(type){
+  E('reportType').value=type;
+  [['tabPatient','患者沟通版'],['tabDoctor','医生病例摘要版'],['tabSystem','专业系统分析版'],['tabConsent','知情沟通要点版']].forEach(x=>E(x[0]).classList.toggle('active',x[1]===type));
+  generateReport();
+}
+
+function patientReport(){
+return `正畸患者初步沟通报告
+
+一、先给结论
+${V('oneConclusion','目前属于正畸初步评估阶段，最终结论需结合面像照、口内照、口扫模型、全景片及头颅侧位片完整分析后确定。')}
+
+二、患者信息
+姓名：${reportName()}
+年龄：${V('age')}
+性别：${V('sex')}
+日期：${V('date')}
+病例类型：${V('stage')}
+接诊医生：${V('doctor')}
+沟通对象：${V('receiver')}
+
+三、主诉与需求
+主诉：${V('chief')}
+患者/家长期望：${V('want')}
+
+四、目前检查摘要
+面型：${V('faceType')}
+侧貌：${V('profile')}
+唇部情况：${V('lips')}
+颏部/下颌：${V('chin')}
+磨牙关系：右侧 ${V('molarR')}；左侧 ${V('molarL')}
+尖牙关系：右侧 ${V('canineR')}；左侧 ${V('canineL')}
+覆盖：${V('overjet')}
+覆合：${V('overbite')}
+中线：${V('midline')}
+横向问题：${V('crossbite')}
+拥挤度：上颌 ${V('upperCrowd')}；下颌 ${V('lowerCrowd')}
+散在间隙：上颌 ${V('upperSpace')}；下颌 ${V('lowerSpace')}
+
+五、头影测量/估测摘要
+${cephText()}
+
+六、医生初步判断
+骨性问题：${V('skeletalProblem')}
+牙性问题：${V('dentalProblem')}
+软组织/美学问题：${V('estheticProblem')}
+功能/健康问题：${V('functionalProblem')}
+
+七、依据说明
+临床依据：${V('clinicalEvidence')}
+头影/模型依据：${V('dataEvidence')}
+
+八、治疗沟通方案
+推荐路径：${V('treatPath')}
+预计周期：${V('duration')}
+复诊频率：${V('interval')}
+一期目标：${V('phase1')}
+二期/综合目标：${V('phase2')}
+
+患者版解释：
+${V('patientPlan',V('plan'))}
+
+九、配合要求
+${V('compliance')}
+
+十、保持方案
+${V('retention')}
+
+十一、风险与注意事项
+${getRisks()}
+
+十二、需要进一步确认/不确定点
+${V('uncertain','暂无特别不确定点；仍需以完整资料分析为准。')}
+
+十三、补充说明
+${V('extra','本报告用于初诊沟通，最终方案需结合影像、口扫、面像照、口内检查及完整分析后确定。')}
+
+提示：本报告为门诊沟通材料，具体方案、周期、费用和注意事项以正式检查、分析和知情沟通为准。`;
+}
+
+function doctorReport(){
+return `正畸医生病例摘要
+
+一、先给结论
+${V('oneConclusion')}
+
+二、基本信息
+姓名：${reportName()}｜年龄：${V('age')}｜性别：${V('sex')}｜日期：${V('date')}
+病例类型：${V('stage')}｜医生：${V('doctor')}｜沟通对象：${V('receiver')}
+
+三、主诉/期望/病史
+主诉：${V('chief')}
+期望：${V('want')}
+既往史/口腔治疗史：${V('history')}
+习惯/功能：${V('habits')}
+
+四、面像与软组织
+面型：${V('faceType')}；侧貌：${V('profile')}；唇部：${V('lips')}；颏部：${V('chin')}
+对称性：${V('symmetry')}
+软组织沟通重点：${V('softTissueFocus')}
+
+五、口内与模型
+磨牙：R ${V('molarR')}；L ${V('molarL')}
+尖牙：R ${V('canineR')}；L ${V('canineL')}
+覆盖：${V('overjet')}；覆合：${V('overbite')}；中线：${V('midline')}；横向：${V('crossbite')}
+拥挤：U ${V('upperCrowd')}；L ${V('lowerCrowd')}
+间隙：U ${V('upperSpace')}；L ${V('lowerSpace')}
+牙体牙周/影像备注：${V('dentalNote')}
+模型/口扫备注：${V('modelNote')}
+
+六、头影测量/估测
+${cephText()}
+
+七、问题列表
+骨性：${V('skeletalProblem')}
+牙性：${V('dentalProblem')}
+软组织/美学：${V('estheticProblem')}
+功能/健康：${V('functionalProblem')}
+
+八、依据
+临床依据：${V('clinicalEvidence')}
+头影/模型依据：${V('dataEvidence')}
+
+九、争议与不确定
+争议/不同观点：${V('controversy')}
+证据不足/不确定：${V('uncertain')}
+
+十、治疗设计
+路径：${V('treatPath')}
+周期：${V('duration')}；复诊：${V('interval')}
+一期目标：${V('phase1')}
+二期/综合目标：${V('phase2')}
+医生版方案：${V('plan')}
+患者版解释：${V('patientPlan')}
+配合要求：${V('compliance')}
+保持方案：${V('retention')}
+
+十一、风险与门诊备注
+风险：${getRisks()}
+随访/成交备注：${V('followNote')}
+补充：${V('extra')}`;
+}
+
+function systemReport(){
+return `正畸问题系统分析
+
+一、结论
+${V('oneConclusion','证据不足时不强行下最终诊断；需结合完整正畸资料后再定方案。')}
+
+二、依据
+1. 临床依据：
+${V('clinicalEvidence')}
+
+2. 头影/模型依据：
+${V('dataEvidence')}
+
+3. 头影测量/估测表：
+${cephText()}
+
+三、问题分层
+1. 骨性问题：
+${V('skeletalProblem')}
+
+2. 牙性问题：
+${V('dentalProblem')}
+
+3. 软组织/美学问题：
+${V('estheticProblem')}
+
+4. 功能/健康问题：
+${V('functionalProblem')}
+
+四、治疗思路
+推荐路径：${V('treatPath')}
+一期目标：${V('phase1')}
+二期/综合目标：${V('phase2')}
+具体方案：${V('plan')}
+
+五、争议点
+${V('controversy','暂无明确争议；若涉及拔牙/非拔牙、隐形/固定、掩饰/正颌，应结合资料进一步讨论。')}
+
+六、证据不足或不确定处
+${V('uncertain','当前资料不足以支持最终结论时，应标记为待进一步检查确认。')}
+
+七、风险与依从性
+${getRisks()}
+配合要求：${V('compliance')}
+
+八、保持建议
+${V('retention')}`;
+}
+
+function consentReport(){
+return `正畸治疗知情沟通要点
+
+患者：${reportName()}｜年龄：${V('age')}｜类型：${V('stage')}｜日期：${V('date')}
+
+一、先给结论
+${V('oneConclusion')}
+
+二、目前主要问题
+1. 骨性问题：${V('skeletalProblem')}
+2. 牙性问题：${V('dentalProblem')}
+3. 软组织/美学问题：${V('estheticProblem')}
+4. 功能/健康问题：${V('functionalProblem')}
+
+三、拟定治疗方向
+推荐路径：${V('treatPath')}
+预计周期：${V('duration')}
+复诊频率：${V('interval')}
+阶段目标：
+${V('phase1')}
+${V('phase2')}
+
+四、存在争议/可选方案
+${V('controversy','治疗方式存在个体化差异，最终方案需结合完整资料和医患沟通确定。')}
+
+五、患者需要配合的事项
+${V('compliance')}
+
+六、常见风险与注意事项
+${getRisks()}
+
+七、保持与复发说明
+${V('retention')}
+
+八、不确定点
+${V('uncertain','最终治疗边界和周期需结合完整检查结果确定。')}
+
+九、补充说明
+${V('extra','具体治疗方案需结合完整资料分析、正式诊断及知情同意后确定。')}`;
+}
+
+function generateReport(){
+  const type=V('reportType','患者沟通版');
+  let text=patientReport();
+  if(type==='医生病例摘要版')text=doctorReport();
+  if(type==='专业系统分析版')text=systemReport();
+  if(type==='知情沟通要点版')text=consentReport();
+  E('out').textContent=text;
+  save();
+  say('报告已生成。');
+}
+
+function fillTemplate(){
+  const s=V('stage');
+  if(s.includes('儿童')){
+    chief.value=chief.value||'家长希望评估孩子牙齿及咬合发育情况。';
+    want.value=want.value||'希望明确是否需要早期干预、阶段目标、复诊频率及后续是否需要二期矫治。';
+    oneConclusion.value=oneConclusion.value||'该病例需优先判断是否存在影响生长发育的咬合问题，早期矫治目标应以解除功能干扰、改善颌骨发育环境和引导替牙为主。';
+    skeletalProblem.value=skeletalProblem.value||'需结合头影和生长发育评估上下颌骨关系。';
+    dentalProblem.value=dentalProblem.value||'需评估替牙顺序、覆合覆盖、牙列间隙及牙弓宽度。';
+    clinicalEvidence.value=clinicalEvidence.value||'依据口内检查、覆合覆盖、替牙阶段、面型及功能习惯进行初步判断。';
+    dataEvidence.value=dataEvidence.value||'需结合头颅侧位片、全景片及口扫模型进一步验证。';
+    phase1.value=phase1.value||'改善影响生长发育的咬合问题，解除功能性干扰，创造正常替牙和颌骨发育环境。';
+    plan.value=plan.value||'完善面像照、口扫模型、全景片及头颅侧位片，根据资料选择平导、扩弓、功能矫治、前方牵引或儿童隐形矫治等阶段方案。';
+    patientPlan.value=patientPlan.value||'早期矫治的重点不是一次性把所有牙齿排到最终状态，而是先解决影响发育和咬合稳定的关键问题。';
+    uncertain.value=uncertain.value||'若缺少头影测量、口扫模型或生长发育评估，暂不能确定骨性程度和长期生长趋势。';
+    retention.value=retention.value||'阶段目标达成后需按医嘱佩戴保持装置，并定期复查替牙和颌骨发育。';
+  }else if(s.includes('正颌')){
+    chief.value=chief.value||'患者希望评估面型或咬合不协调问题，了解单纯正畸与正畸-正颌联合治疗的差异。';
+    oneConclusion.value=oneConclusion.value||'该病例需重点区分牙性代偿与骨性不调；若主要矛盾来自颌骨关系，单纯正畸改善面型和咬合的边界有限。';
+    skeletalProblem.value=skeletalProblem.value||'需重点评估上下颌骨三维关系、牙齿代偿程度及软组织改善边界。';
+    clinicalEvidence.value=clinicalEvidence.value||'依据面型、侧貌、咬合关系、前牙代偿和软组织协调性进行初步判断。';
+    dataEvidence.value=dataEvidence.value||'需结合头影测量、模型分析和必要的CBCT/外科评估。';
+    controversy.value=controversy.value||'争议主要在于单纯正畸掩饰治疗与正畸-正颌联合治疗的边界。';
+    phase1.value=phase1.value||'完成资料采集和联合评估，明确单纯正畸掩饰治疗与联合治疗边界。';
+    plan.value=plan.value||'根据资料判断是否采用单纯正畸方案，或术前正畸去代偿、外科评估、术后精细调整的联合路径。';
+    patientPlan.value=patientPlan.value||'如果主要问题来自颌骨关系，单纯移动牙齿的改善可能有限，需要进一步评估是否联合外科方案。';
+  }else if(s.includes('隐形')){
+    chief.value=chief.value||'患者希望采用较美观、舒适的方式改善牙列排列和咬合关系。';
+    oneConclusion.value=oneConclusion.value||'是否适合隐形矫治，关键取决于牙齿移动难度、咬合目标、附件设计和患者佩戴依从性。';
+    dentalProblem.value=dentalProblem.value||'需评估拥挤度、附件设计、牙齿移动难度、咬合调整难度及患者依从性。';
+    controversy.value=controversy.value||'固定矫治与隐形矫治在转矩控制、垂直向控制、复杂移动效率方面存在差异，应结合病例难度选择。';
+    plan.value=plan.value||'完善资料后进行隐形矫治方案设计，重点控制牙齿移动顺序、附件、片切、橡皮筋及复诊监控。';
+    compliance.value=compliance.value||'需保证每日足时佩戴，按医嘱更换矫治器，进食后清洁牙齿再佩戴。';
+  }else{
+    chief.value=chief.value||'患者希望改善牙列排列、咬合关系及面部美观。';
+    want.value=want.value||'希望了解是否需要拔牙、治疗周期、矫治方式、复诊频率及保持要求。';
+    oneConclusion.value=oneConclusion.value||'该病例需综合评估拥挤度、侧貌、覆合覆盖、磨牙关系和支抗需求后，再判断拔牙/非拔牙及固定/隐形矫治路径。';
+    dentalProblem.value=dentalProblem.value||'需综合评估牙列拥挤、覆合覆盖、磨牙尖牙关系、中线、前牙倾斜度及支抗需求。';
+    clinicalEvidence.value=clinicalEvidence.value||'依据口内检查、磨牙尖牙关系、覆合覆盖、牙列拥挤度和面型侧貌进行初步判断。';
+    dataEvidence.value=dataEvidence.value||'需结合头影测量、口扫模型、全景片和必要的牙周影像进行确认。';
+    controversy.value=controversy.value||'主要争议可能包括拔牙与非拔牙、固定与隐形、支抗钉使用、前牙内收边界和长期稳定性。';
+    phase1.value=phase1.value||'排齐整平牙列，初步协调牙弓形态和咬合关系。';
+    phase2.value=phase2.value||'精细调整磨牙尖牙关系、前牙覆合覆盖、中线及咬合接触。';
+    plan.value=plan.value||'完善正畸资料后制定固定或隐形矫治方案，根据拥挤度、侧貌和支抗需求评估非拔牙、片切、推磨牙或拔牙路径。';
+    patientPlan.value=patientPlan.value||'治疗目标是改善牙齿排列、咬合功能和美观，同时尽量提高结果稳定性。';
+    retention.value=retention.value||'治疗结束后需按医嘱佩戴保持器，前6-12个月为复发高风险期，后期建议长期夜间保持。';
+  }
+  duration.value=duration.value||'需根据完整资料评估';
+  interval.value=interval.value||'约4-6周复诊一次';
+  compliance.value=compliance.value||'按时复诊，保持口腔清洁，按医嘱佩戴橡皮筋/矫治器/保持器，避免啃咬过硬食物。';
+  save();
+  say('已按当前病例类型套用临床模板，已有内容未覆盖。');
+}
+
+function deidentify(){
+  name.value=maskName(V('name','患者'));
+  ['history','followNote','extra'].forEach(id=>{
+    const el=E(id);
+    if(el)el.value=el.value.replace(/[0-9]{11}/g,'[手机号已隐藏]').replace(/[0-9]{17}[0-9Xx]/g,'[身份证已隐藏]');
+  });
+  save();
+  say('已完成基础脱敏。');
+}
+
+async function copyReport(){
+  if(E('out').textContent.includes('请填写'))generateReport();
+  try{await navigator.clipboard.writeText(E('out').textContent);say('已复制到剪贴板。')}
+  catch(e){say('复制失败，请手动长按复制。')}
+}
+
+function downloadTxt(){
+  if(E('out').textContent.includes('请填写'))generateReport();
+  const blob=new Blob([E('out').textContent],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`正畸报告_${reportName()}_${V('date','')}.txt`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+function saveSetting(){
+  localStorage.setItem('orthoV31AllowSave',E('saveOn').checked?'1':'0');
+  if(!E('saveOn').checked){localStorage.removeItem('orthoV31Draft');say('已关闭本机草稿保存，并清除本机草稿。')}
+  else save();
+}
+
+function save(){
+  if(!E('saveOn').checked)return;
+  const d={};
+  ids.forEach(id=>{const el=E(id);if(el)d[id]=el.value});
+  d.risks=[...document.querySelectorAll('#riskChecks input')].map(x=>x.checked);
+  localStorage.setItem('orthoV31Draft',JSON.stringify(d));
+}
+
+function restore(){
+  localStorage.removeItem('orthoToolV1');
+  localStorage.removeItem('orthoV2');
+  localStorage.removeItem('orthoV3Draft');
+  E('saveOn').checked=localStorage.getItem('orthoV31AllowSave')==='1';
+  if(!E('saveOn').checked){
+    localStorage.removeItem('orthoV31Draft');
+    E('date').value=new Date().toISOString().slice(0,10);
+    return;
+  }
+  const raw=localStorage.getItem('orthoV31Draft');
+  if(raw){
+    try{
+      const d=JSON.parse(raw);
+      Object.keys(d).forEach(id=>{if(E(id)&&id!=='risks')E(id).value=d[id]});
+      if(Array.isArray(d.risks)){[...document.querySelectorAll('#riskChecks input')].forEach((x,i)=>x.checked=!!d.risks[i])}
+    }catch(e){localStorage.removeItem('orthoV31Draft')}
+  }else E('date').value=new Date().toISOString().slice(0,10);
+}
+
+function clearAll(){
+  if(!confirm('确定清空当前页面所有内容吗？'))return;
+  ids.forEach(id=>{const e=E(id);if(e)e.tagName==='SELECT'?e.selectedIndex=0:e.value=''});
+  [...document.querySelectorAll('#riskChecks input')].forEach(x=>x.checked=false);
+  E('date').value=new Date().toISOString().slice(0,10);
+  E('maskOn').checked=true;
+  E('out').textContent='请填写后点击“生成报告”。';
+  localStorage.removeItem('orthoV31Draft');
+  say('已清空。');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  restore();
+  ids.forEach(id=>{const el=E(id);if(el){el.addEventListener('input',save);el.addEventListener('change',save)}});
+  document.querySelectorAll('#riskChecks input').forEach(x=>x.addEventListener('change',save));
+});
+</script>
+</body>
+</html>
